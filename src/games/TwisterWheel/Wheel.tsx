@@ -13,10 +13,11 @@ export interface Section {
 interface WheelProps {
     sections: Section[];
     rotation: number;
+    duration: number;
     onSpinEnd?: () => void;
 }
 
-export const Wheel: React.FC<WheelProps> = ({ sections, rotation, onSpinEnd }) => {
+export const Wheel: React.FC<WheelProps> = ({ sections, rotation, duration, onSpinEnd }) => {
     const radius = 150;
     const center = 150;
     const totalSections = sections.length;
@@ -46,8 +47,8 @@ export const Wheel: React.FC<WheelProps> = ({ sections, rotation, onSpinEnd }) =
                 className="w-full h-full"
                 animate={{ rotate: rotation }}
                 transition={{
-                    duration: 4,
-                    ease: [0.15, 0.85, 0.35, 1], // Custom cubic-bezier for "spin up then slow down"
+                    duration: duration,
+                    ease: duration > 0 ? [0.15, 0.85, 0.35, 1] : "linear",
                     type: "tween"
                 }}
                 onAnimationComplete={() => {

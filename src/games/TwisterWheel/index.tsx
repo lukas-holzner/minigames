@@ -52,6 +52,7 @@ export default function TwisterWheel() {
     // Configuration State
     const [newColor, setNewColor] = useState('#a855f7');
     const [newName, setNewName] = useState('');
+    const [spinDuration, setSpinDuration] = useState(4);
 
     // Derive sections from colors * body parts
     const sections: Section[] = colors.flatMap(color =>
@@ -140,6 +141,7 @@ export default function TwisterWheel() {
                     <Wheel
                         sections={sections}
                         rotation={rotation}
+                        duration={spinDuration}
                         onSpinEnd={onSpinEnd}
                     />
 
@@ -181,7 +183,25 @@ export default function TwisterWheel() {
                         animate={{ height: 'auto', opacity: 1 }}
                         className="border-t-4 border-black bg-gray-50 p-4"
                     >
-                        <h3 className="text-xl font-bold mb-4">Customize Colors</h3>
+                        <h3 className="text-xl font-bold mb-4">Settings</h3>
+
+                        {/* Spin Duration Slider */}
+                        <div className="mb-4">
+                            <label className="block text-lg mb-2">
+                                Spin Duration: {spinDuration === 0 ? 'Instant' : `${spinDuration}s`}
+                            </label>
+                            <input
+                                type="range"
+                                min="0"
+                                max="6"
+                                step="0.5"
+                                value={spinDuration}
+                                onChange={(e) => setSpinDuration(Number(e.target.value))}
+                                className="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                            />
+                        </div>
+
+                        <h4 className="text-lg font-bold mb-2">Colors</h4>
 
                         <div className="flex gap-2 mb-4">
                             <input
