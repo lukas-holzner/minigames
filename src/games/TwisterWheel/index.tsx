@@ -192,7 +192,7 @@ export default function TwisterWheel() {
 
         // Find the color name for better display
         const colorName = colors.find(c => c.color === winningSection.color)?.name || '';
-        setLastResult(`${colorName} ${winningSection.label}`);
+        setLastResult(`${winningSection.label} on ${colorName}`);
     };
 
     const addColor = () => {
