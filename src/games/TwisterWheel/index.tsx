@@ -59,6 +59,7 @@ export default function TwisterWheel() {
     const [newColor, setNewColor] = useState('#a855f7');
     const [newName, setNewName] = useState('');
     const [spinDuration, setSpinDuration] = useState(4);
+    const [musicEnabled, setMusicEnabled] = useState(true);
 
     // Music state
     const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -123,7 +124,7 @@ export default function TwisterWheel() {
         const audio = audioRef.current;
         if (!audio) return;
 
-        if (isSpinning) {
+        if (isSpinning && musicEnabled) {
             // Clear any fade interval
             if (fadeIntervalRef.current) {
                 clearInterval(fadeIntervalRef.current);
@@ -281,6 +282,20 @@ export default function TwisterWheel() {
                                 onChange={(e) => setSpinDuration(Number(e.target.value))}
                                 className="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
                             />
+                        </div>
+
+                        {/* Music Toggle */}
+                        <div className="mb-4 flex items-center justify-between">
+                            <label className="text-lg">Music</label>
+                            <button
+                                onClick={() => setMusicEnabled(!musicEnabled)}
+                                className={clsx(
+                                    "px-4 py-2 rounded-lg border-2 border-black font-bold transition-colors",
+                                    musicEnabled ? "bg-green-500 text-white" : "bg-gray-300 text-gray-600"
+                                )}
+                            >
+                                {musicEnabled ? 'On' : 'Off'}
+                            </button>
                         </div>
 
                         <h4 className="text-lg font-bold mb-2">Colors</h4>
