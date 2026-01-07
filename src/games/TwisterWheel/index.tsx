@@ -1,8 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Wheel, type Section } from './Wheel';
 import { motion } from 'framer-motion';
 import { Plus, Trash2, RotateCw, Settings, Hand, Footprints } from 'lucide-react';
 import clsx from 'clsx';
+
+// Music imports
+import song1 from '../../assets/twister-songs/Spin-That-Twister-1.mp3';
+import song2 from '../../assets/twister-songs/Spin-That-Twister-2.mp3';
+
+const SONGS = [song1, song2];
 
 const BODY_PARTS = [
     { label: 'Left Hand', icon: Hand, side: 'L' as const },
@@ -54,6 +60,81 @@ export default function TwisterWheel() {
     const [newName, setNewName] = useState('');
     const [spinDuration, setSpinDuration] = useState(4);
 
+    // Music state
+    const audioRef = useRef<HTMLAudioElement | null>(null);
+    const fadeIntervalRef = useRef<number | null>(null);
+    const [currentSongIndex, setCurrentSongIndex] = useState(0);
+
+    // Initialize audio on mount
+    useEffect(() => {
+        const audio = new Audio(SONGS[currentSongIndex]);
+        audio.loop = false;
+        audio.volume = 0.7;
+        audioRef.current = audio;
+
+        // When song ends, switch to a random different song
+        audio.addEventListener('ended', () => {
+            const nextIndex = SONGS.length > 1
+                ? (Math.floor(Math.random() * (SONGS.length - 1)) + currentSongIndex + 1) % SONGS.length
+                : 0;
+            setCurrentSongIndex(nextIndex);
+            audio.src = SONGS[nextIndex];
+            if (isSpinning) {
+                audio.play();
+            }
+        });
+
+        return () => {
+            audio.pause();
+            audio.src = '';
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    // Fade out music function
+    const fadeOutMusic = (callback?: () => void) => {
+        const audio = audioRef.current;
+        if (!audio) return;
+
+        if (fadeIntervalRef.current) {
+            clearInterval(fadeIntervalRef.current);
+        }
+
+        const fadeStep = 0.05;
+        const fadeInterval = 50; // ms
+
+        fadeIntervalRef.current = window.setInterval(() => {
+            if (audio.volume > fadeStep) {
+                audio.volume -= fadeStep;
+            } else {
+                audio.volume = 0;
+                audio.pause();
+                if (fadeIntervalRef.current) {
+                    clearInterval(fadeIntervalRef.current);
+                    fadeIntervalRef.current = null;
+                }
+                if (callback) callback();
+            }
+        }, fadeInterval);
+    };
+
+    // Start music when spinning
+    useEffect(() => {
+        const audio = audioRef.current;
+        if (!audio) return;
+
+        if (isSpinning) {
+            // Clear any fade interval
+            if (fadeIntervalRef.current) {
+                clearInterval(fadeIntervalRef.current);
+                fadeIntervalRef.current = null;
+            }
+            // Restore volume and play
+            audio.volume = 0.7;
+            audio.play().catch(e => console.log('Audio play failed:', e));
+        }
+    }, [isSpinning]);
+
     // Derive sections from colors * body parts
     const sections: Section[] = colors.flatMap(color =>
         BODY_PARTS.map(part => ({
@@ -83,6 +164,7 @@ export default function TwisterWheel() {
 
     const onSpinEnd = () => {
         setIsSpinning(false);
+        fadeOutMusic();
 
         // Calculate result
         const normalizedRotation = rotation % 360;
