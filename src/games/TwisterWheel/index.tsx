@@ -5,10 +5,9 @@ import { Plus, Trash2, RotateCw, Settings, Hand, Footprints } from 'lucide-react
 import clsx from 'clsx';
 
 // Music imports
-import song1 from '../../assets/twister-songs/Spin-That-Twister-1.mp3';
-import song2 from '../../assets/twister-songs/Spin-That-Twister-2.mp3';
-
-const SONGS = [song1, song2];
+// Dynamically import all songs from the twister-songs folder
+const songModules = import.meta.glob('../../assets/twister-songs/*.mp3', { eager: true, query: '?url', import: 'default' });
+const SONGS = Object.values(songModules) as string[];
 
 const BODY_PARTS = [
     { label: 'Left Hand', icon: Hand, side: 'L' as const },
@@ -64,7 +63,9 @@ export default function TwisterWheel() {
     // Music state
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const fadeIntervalRef = useRef<number | null>(null);
-    const [currentSongIndex, setCurrentSongIndex] = useState(0);
+    const [currentSongIndex, setCurrentSongIndex] = useState(() =>
+        SONGS.length > 0 ? Math.floor(Math.random() * SONGS.length) : 0
+    );
 
     // Initialize audio on mount
     useEffect(() => {
