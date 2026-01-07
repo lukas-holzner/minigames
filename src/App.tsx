@@ -4,7 +4,7 @@ import TwisterWheel from './games/TwisterWheel';
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/minigames">
       <div className="min-h-screen bg-gray-50 text-gray-900 font-sans">
         <Routes>
           <Route path="/" element={<Home />} />
